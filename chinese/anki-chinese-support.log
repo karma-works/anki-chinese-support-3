@@ -190,3 +190,12 @@ AttributeError: 'NoneType' object has no attribute 'close'
 2025-11-16 15:21:44,523 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
 2025-11-16 15:21:44,523 - DEBUG - anki-chinese-support - Processing field: Color
 2025-11-16 15:21:44,523 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:23:03,086 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:23:03,087 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:23:03,303 - DEBUG - anki-chinese-support - Fields updated successfully
+2025-11-16 15:23:03,417 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:23:03,417 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:23:03,417 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:23:13,944 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:23:13,945 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:23:13,946 - DEBUG - anki-chinese-support - No fields updated

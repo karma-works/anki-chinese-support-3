@@ -24,3 +24,4 @@ chinese/data/db
 !chinese/data/db/update.py
 !chinese/data/db/COPYING.txt
 !chinese/data/db/chinese.db
+chinese/anki-chinese-support.log
