@@ -20,6 +20,7 @@
 from .color import colorize, colorize_dict, colorize_fuse
 from .freq import get_frequency
 from .hanzi import get_silhouette, get_simp, get_trad, split_hanzi
+from .log import log
 from .main import config, dictionary
 from .sound import sound
 from .transcribe import (
@@ -83,13 +84,13 @@ def fill_classifiers(hanzi, note):
 
     # Simplified classifiers
     if simplified_classifier and has_any_field(config['fields']['classifierSimplified'], note):
-        print(simplified_classifier)
+        log.debug("Simplified classifiers for %r: %s", hanzi, simplified_classifier)
         set_all(config['fields']['classifierSimplified'], note, to=simplified_classifier)
         filled = True
 
     # Traditional classifiers
     if traditional_classifier and has_any_field(config['fields']['classifierTraditional'], note):
-        print(traditional_classifier)
+        log.debug("Traditional classifiers for %r: %s", hanzi, traditional_classifier)
         set_all(config['fields']['classifierTraditional'], note, to=traditional_classifier)
         filled = True
     return filled
@@ -212,7 +213,9 @@ def fill_color(hanzi, note):
         target = 'jyutping'
         field_group = 'jyutping'
     else:
-        raise NotImplementedError(config['target'])
+        error_msg = "Unsupported target for fill_color: {}".format(config['target'])
+        log.error(error_msg)
+        raise NotImplementedError(error_msg)
 
     #hanziColor
     field = get_first(config['fields'][field_group], note)
@@ -301,7 +304,9 @@ def fill_ruby(hanzi, note, trans_group, ruby_group):
         field = get_first(config['fields'][trans_group], note)
         trans = sanitize_transcript(field, 'jyutping', grouped=False)
     else:
-        raise NotImplementedError(trans_group)
+        error_msg = "Unsupported trans_group for fill_ruby: {}".format(trans_group)
+        log.error(error_msg)
+        raise NotImplementedError(error_msg)
 
     hanzi = split_hanzi(cleanup(hanzi), grouped=False)
     rubified = colorize_fuse(hanzi, trans, ruby=True)
@@ -324,51 +329,55 @@ def fill_all_rubies(hanzi, note):
 
 
 def update_fields(note, focus_field, fields):
-    copy = dict(note)
-    hanzi = get_first(config['fields']['hanzi'], copy)
-    if not hanzi:
-        return False
-    hanzi = cleanup(hanzi)
+    try:
+        copy = dict(note)
+        hanzi = get_first(config['fields']['hanzi'], copy)
+        if not hanzi:
+            return False
+        hanzi = cleanup(hanzi)
 
-    transcript_fields = (
-        config['fields']['pinyin']
-        + config['fields']['pinyinTaiwan']
-        + config['fields']['cantonese']
-        + config['fields']['bopomofo']
-    )
+        transcript_fields = (
+            config['fields']['pinyin']
+            + config['fields']['pinyinTaiwan']
+            + config['fields']['cantonese']
+            + config['fields']['bopomofo']
+        )
 
-    if focus_field in transcript_fields:
-        fill_color(hanzi, copy)
-        fill_all_rubies(hanzi, copy)
-
-    if focus_field in config['fields']['hanzi']:
-        if copy[focus_field]:
-            fill_alt(hanzi, copy)
-            fill_all_defs(hanzi, copy)
-            fill_classifiers(hanzi, copy)
-            fill_transcript(hanzi, copy)
-            fill_trad(hanzi, copy)
+        if focus_field in transcript_fields:
             fill_color(hanzi, copy)
-            fill_sound(hanzi, copy)
-            fill_simp(hanzi, copy)
-            fill_frequency(hanzi, copy)
             fill_all_rubies(hanzi, copy)
-            fill_silhouette(hanzi, copy)
-            fill_usage(hanzi, copy)
-        else:
-            erase_fields(copy, config.get_fields())
-    elif focus_field in config['fields']['pinyin']:
-        reformat_transcript(copy, 'pinyin', 'pinyin')
-    elif focus_field in config['fields']['pinyinTaiwan']:
-        reformat_transcript(copy, 'pinyinTaiwan', 'pinyin_tw')
-    elif focus_field in config['fields']['cantonese']:
-        reformat_transcript(copy, 'cantonese', 'jyutping')
 
-    updated = False
+        if focus_field in config['fields']['hanzi']:
+            if copy[focus_field]:
+                fill_alt(hanzi, copy)
+                fill_all_defs(hanzi, copy)
+                fill_classifiers(hanzi, copy)
+                fill_transcript(hanzi, copy)
+                fill_trad(hanzi, copy)
+                fill_color(hanzi, copy)
+                fill_sound(hanzi, copy)
+                fill_simp(hanzi, copy)
+                fill_frequency(hanzi, copy)
+                fill_all_rubies(hanzi, copy)
+                fill_silhouette(hanzi, copy)
+                fill_usage(hanzi, copy)
+            else:
+                erase_fields(copy, config.get_fields())
+        elif focus_field in config['fields']['pinyin']:
+            reformat_transcript(copy, 'pinyin', 'pinyin')
+        elif focus_field in config['fields']['pinyinTaiwan']:
+            reformat_transcript(copy, 'pinyinTaiwan', 'pinyin_tw')
+        elif focus_field in config['fields']['cantonese']:
+            reformat_transcript(copy, 'cantonese', 'jyutping')
 
-    for f in fields:
-        if note[f] != copy[f]:
-            note[f] = copy[f]
-            updated = True
+        updated = False
 
-    return updated
+        for f in fields:
+            if note[f] != copy[f]:
+                note[f] = copy[f]
+                updated = True
+
+        return updated
+    except Exception as e:
+        log.exception("Error in update_fields (focus_field: %r, hanzi: %r)", focus_field, hanzi if 'hanzi' in locals() else 'unknown')
+        raise

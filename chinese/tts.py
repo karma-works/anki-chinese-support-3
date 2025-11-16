@@ -18,6 +18,7 @@ from gtts import gTTS
 from gtts.tts import gTTSError
 
 from .aws import AWS4Signer
+from .log import log
 
 requests.packages.urllib3.disable_warnings()
 
@@ -47,6 +48,8 @@ class AudioDownloader:
             return basename(self.path)
 
         if not self.func:
+            error_msg = "Service not implemented: {}".format(self.service)
+            log.error(error_msg)
             raise NotImplementedError(self.service)
 
         self.func()
@@ -58,7 +61,7 @@ class AudioDownloader:
         try:
             tts.save(self.path)
         except gTTSError as e:
-            print('gTTS Error: {}'.format(e))
+            log.error("gTTS Error while saving audio for %r: %s", self.text, e, exc_info=True)
 
     def get_baidu(self):
         query = {
@@ -82,7 +85,9 @@ class AudioDownloader:
 
         with urlopen(request, context=context, timeout=5) as response, open(self.path, 'wb') as audio:
             if response.code != 200:
-                raise ValueError('{}: {}'.format(response.code, response.msg))
+                error_msg = 'Baidu TTS request failed: {}: {}'.format(response.code, response.msg)
+                log.error(error_msg)
+                raise ValueError(error_msg)
 
             bytes_response = response.read()
             audio.write(bytes_response)
@@ -101,11 +106,11 @@ class AudioDownloader:
         response = requests.post(url, json=query, auth=signer)
 
         if response.status_code != 200:
-            raise ValueError(
-                'Polly Request Failed: Error Code {}'.format(
-                    response.status_code
-                )
+            error_msg = 'Polly Request Failed: Error Code {}'.format(
+                response.status_code
             )
+            log.error(error_msg)
+            raise ValueError(error_msg)
 
         with open(self.path, 'wb') as audio:
             audio.write(response.content)

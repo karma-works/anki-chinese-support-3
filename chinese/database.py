@@ -20,6 +20,7 @@
 import sqlite3
 from os.path import dirname, join, realpath
 
+from .log import log
 from .util import add_with_space
 
 
@@ -42,8 +43,8 @@ class Dictionary:
         try:  # I have occasionally gotten this error, not sure why.
             self.conn.close()
             self.conn = None
-        except AttributeError:
-            pass
+        except AttributeError as e:
+            log.warning("Error closing database connection: %s", e, exc_info=True)
 
     def create_indices(self):
         self.c.execute(
@@ -63,7 +64,9 @@ class Dictionary:
         elif type_ == 'simp':
             query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE simplified=?'
         else:
-            raise ValueError(type_)
+            error_msg = "Invalid type for _get_word_pinyin: {}".format(type_)
+            log.error(error_msg)
+            raise ValueError(error_msg)
 
         if no_variants:
             query += """AND (english NOT LIKE '%variant%' OR english IS NULL)
@@ -195,7 +198,8 @@ class Dictionary:
         try:
             (k,) = self.c.fetchone()
             return k
-        except:
+        except Exception as e:
+            log.debug("No character found for %r (type: %s): %s", c, type_, e)
             return None
 
     def _get_word(self, word, type_):
@@ -210,7 +214,8 @@ class Dictionary:
         try:
             (k,) = self.c.fetchone()
             return k
-        except:
+        except Exception as e:
+            log.debug("No word found for %r (type: %s): %s", word, type_, e)
             return None
 
     def get_definitions(self, word, lang):
@@ -226,7 +231,8 @@ class Dictionary:
         )
         try:
             return self.c.fetchall()
-        except:
+        except Exception as e:
+            log.error("Error fetching definitions for %r (lang: %s): %s", word, lang, e, exc_info=True)
             return []
 
     def get_classifiers(self, word):
@@ -263,5 +269,6 @@ class Dictionary:
         )
         try:
             return self.c.fetchone()
-        except:
+        except Exception as e:
+            log.error("Error fetching sentences for %r: %s", word, e, exc_info=True)
             return []

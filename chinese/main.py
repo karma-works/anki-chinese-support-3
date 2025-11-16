@@ -24,6 +24,7 @@ from anki.stdmodels import models
 
 from .config import ConfigManager
 from .database import Dictionary
+from .log import log
 
 config = ConfigManager()
 dictionary = Dictionary()
@@ -53,6 +54,7 @@ def load():
         CollectionStats.todayStats, todayStats, 'around'
     )
     EditManager()
+    log.info("Plugin was started successfully")
 
 
 def add_models():

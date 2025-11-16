@@ -20,6 +20,7 @@ from re import findall, sub
 
 from .consts import SOUND_TAG_REGEX
 from .hanzi import has_hanzi
+from .log import log
 from .main import config
 from .tts import AudioDownloader
 
@@ -39,7 +40,9 @@ def sound(hanzi, source=None):
         return ''
 
     if source.count('|') != 1:
-        raise ValueError(source)
+        error_msg = "Invalid source format (expected 'service|lang'): {}".format(source)
+        log.error(error_msg)
+        raise ValueError(error_msg)
 
     if has_ruby(hanzi):
         hanzi = ruby_bottom(hanzi)

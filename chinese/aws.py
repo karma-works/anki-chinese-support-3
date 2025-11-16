@@ -24,6 +24,8 @@ from re import sub
 from urllib.parse import urlparse
 import hmac
 
+from .log import log
+
 
 def trimall(s):
     return sub(' +', ' ', s).strip(' ')
@@ -152,7 +154,9 @@ class AWS4Signer:
 
     def __call__(self, req):
         if not self.access_key or not self.secret_key:
-            raise ValueError('No AWS credentials given')
+            error_msg = 'No AWS credentials given'
+            log.error(error_msg)
+            raise ValueError(error_msg)
 
         self.request = req
 

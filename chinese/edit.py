@@ -25,6 +25,7 @@ from anki.hooks import addHook
 from aqt import gui_hooks, mw
 
 from .behavior import update_fields
+from .log import log
 from .main import config
 
 
@@ -37,17 +38,21 @@ class EditManager:
         gui_hooks.editor_will_load_note.append(self.on_editor_will_load_note)
 
     def setupButton(self, buttons: list[str], editor: aqt.editor.Editor):
-        button = editor.addButton(
-            icon=None,
-            cmd='chineseSupport',
-            func=self.onToggle,
-            tip='Chinese Support',
-            label='汉字',
-            id='chineseSupport',
-            toggleable=True
-        )
+        try:
+            button = editor.addButton(
+                icon=None,
+                cmd='chineseSupport',
+                func=self.onToggle,
+                tip='Chinese Support',
+                label='汉字',
+                id='chineseSupport',
+                toggleable=True
+            )
 
-        return buttons + [button]
+            return buttons + [button]
+        except Exception as e:
+            log.exception("Error in setupButton hook")
+            raise
 
     def is_enabled_for_note(self, note: anki.notes.Note) -> bool:
         """Check if the plugin is enabled for the given note."""
@@ -56,97 +61,123 @@ class EditManager:
         return str(note_type["id"]) in config["enabledModels"]
 
     def onToggle(self, editor: aqt.editor.Editor):
-        if not (note := editor.note):
-            return
-        if not (note_type := note.note_type()):
-            return
+        try:
+            if not (note := editor.note):
+                return
+            if not (note_type := note.note_type()):
+                return
 
-        mid = str(note_type["id"])
-        if self.is_enabled_for_note(note):
-            config['enabledModels'].remove(mid)
-        else:
-            config['enabledModels'].append(mid)
+            mid = str(note_type["id"])
+            if self.is_enabled_for_note(note):
+                config['enabledModels'].remove(mid)
+            else:
+                config['enabledModels'].append(mid)
 
-        config.save()
-        self.updateButton(editor)
+            config.save()
+            self.updateButton(editor)
+        except Exception as e:
+            log.exception("Error in onToggle")
+            raise
 
     def on_editor_state_did_change(
         self, editor: aqt.editor.Editor, new_state: aqt.editor.EditorState, old_state: aqt.editor.EditorState
     ):
-        # if the editor just loaded, then we need to set the toggle status of the addon button
-        if old_state is aqt.editor.EditorState.INITIAL:
-            self.updateButton(editor)
+        try:
+            # if the editor just loaded, then we need to set the toggle status of the addon button
+            if old_state is aqt.editor.EditorState.INITIAL:
+                self.updateButton(editor)
+        except Exception as e:
+            log.exception("Error in on_editor_state_did_change hook")
+            raise
 
     def on_load_note(self, editor: aqt.editor.Editor):
-        # if the editor is still in the initial state then the `NoteEditor` component has not mounted to the DOM yet
-        # meaning that the button has not yet been mounted and so we can't update it
-        # in this case, we rely on the `editor_state_did_change` to let us know later on when the editor is ready
-        if editor.state is aqt.editor.EditorState.INITIAL:
-            return
-        self.updateButton(editor)
+        try:
+            # if the editor is still in the initial state then the `NoteEditor` component has not mounted to the DOM yet
+            # meaning that the button has not yet been mounted and so we can't update it
+            # in this case, we rely on the `editor_state_did_change` to let us know later on when the editor is ready
+            if editor.state is aqt.editor.EditorState.INITIAL:
+                return
+            self.updateButton(editor)
+        except Exception as e:
+            log.exception("Error in on_load_note hook")
+            raise
 
     def updateButton(self, editor: aqt.editor.Editor):
-        # apply general stylistic fixes to the button
-        editor.web.eval('document.getElementById("chineseSupport").style.lineHeight="0px";')
+        try:
+            # apply general stylistic fixes to the button
+            editor.web.eval('document.getElementById("chineseSupport").style.lineHeight="0px";')
 
-        if not (note := editor.note):
-            return
-        if self.is_enabled_for_note(note):
-            # setting the css variable properties is a hack for now to have the button stand out when active, especially
-            # for dark mode. this is fragile to upstream changes, if upstream ever makes toggle buttons more visible in
-            # dark mode we can revert to not applying the special style properties
-            editor.web.eval(
-                """
-                document.getElementById("chineseSupport").classList.add("active");
-                document.getElementById("chineseSupport").style.setProperty("--button-bg", "var(--button-primary-bg)");
-                document.getElementById("chineseSupport").style.setProperty("--button-gradient-start", "var(--button-primary-gradient-start)");
-                document.getElementById("chineseSupport").style.setProperty("--button-gradient-end", "var(--button-primary-gradient-end)");
-                """
-            )
-        else:
-            editor.web.eval(
-                """
-                document.getElementById("chineseSupport").classList.remove("active");
-                document.getElementById("chineseSupport").style.setProperty("--button-bg", "");
-                document.getElementById("chineseSupport").style.setProperty("--button-gradient-start", "");
-                document.getElementById("chineseSupport").style.setProperty("--button-gradient-end", "");
-                """
-            )
+            if not (note := editor.note):
+                return
+            if self.is_enabled_for_note(note):
+                # setting the css variable properties is a hack for now to have the button stand out when active, especially
+                # for dark mode. this is fragile to upstream changes, if upstream ever makes toggle buttons more visible in
+                # dark mode we can revert to not applying the special style properties
+                editor.web.eval(
+                    """
+                    document.getElementById("chineseSupport").classList.add("active");
+                    document.getElementById("chineseSupport").style.setProperty("--button-bg", "var(--button-primary-bg)");
+                    document.getElementById("chineseSupport").style.setProperty("--button-gradient-start", "var(--button-primary-gradient-start)");
+                    document.getElementById("chineseSupport").style.setProperty("--button-gradient-end", "var(--button-primary-gradient-end)");
+                    """
+                )
+            else:
+                editor.web.eval(
+                    """
+                    document.getElementById("chineseSupport").classList.remove("active");
+                    document.getElementById("chineseSupport").style.setProperty("--button-bg", "");
+                    document.getElementById("chineseSupport").style.setProperty("--button-gradient-start", "");
+                    document.getElementById("chineseSupport").style.setProperty("--button-gradient-end", "");
+                    """
+                )
+        except Exception as e:
+            log.exception("Error in updateButton")
+            raise
 
     def onFocusLost(self, changed: bool, note: anki.notes.Note, index: int):
-        if not self.is_enabled_for_note(note):
-            return changed
+        field = None
+        try:
+            if not self.is_enabled_for_note(note):
+                return changed
 
-        if not (note_type := note.note_type()):
-            return changed
-        allFields = mw.col.models.field_names(note_type)
-        field = allFields[index]
-        if not update_fields(note, field, allFields):
-            return changed
+            if not (note_type := note.note_type()):
+                return changed
+            allFields = mw.col.models.field_names(note_type)
+            field = allFields[index] if index < len(allFields) else 'unknown'
+            if not update_fields(note, field, allFields):
+                return changed
 
-        return True
+            return True
+        except Exception as e:
+            log.exception("Error in onFocusLost hook (field: %s, index: %d)", field or 'unknown', index)
+            # Re-raise so Anki can handle it and show the error to the user
+            raise
 
     def on_editor_will_load_note(self, js: str, note: anki.notes.Note, editor: aqt.editor.Editor):
-        # modified combination of:
-        # https://github.com/ijgnd/anki__editor__apply__font_color__background_color__custom_class__custom_style/blob/95a8dc30180d75c38baa36532eaad49fe9e20fa1/src/editor/webview.py#L6C14-L16
-        # https://github.com/kleinerpirat/anki-css-injector/blob/f5e94989f79b7a01cd73783487cff0ef838d0c9d/ts/src/injector.ts
-        my_css = self.create_css_for_webviews_from_note(note)
-        if not my_css:
-            return js
-        my_js = f"""
-            (async () => {{
-                while (!require("anki/RichTextInput").instances?.length) {{
-                    await new Promise(requestAnimationFrame);
-                }}
+        try:
+            # modified combination of:
+            # https://github.com/ijgnd/anki__editor__apply__font_color__background_color__custom_class__custom_style/blob/95a8dc30180d75c38baa36532eaad49fe9e20fa1/src/editor/webview.py#L6C14-L16
+            # https://github.com/kleinerpirat/anki-css-injector/blob/f5e94989f79b7a01cd73783487cff0ef838d0c9d/ts/src/injector.ts
+            my_css = self.create_css_for_webviews_from_note(note)
+            if not my_css:
+                return js
+            my_js = f"""
+                (async () => {{
+                    while (!require("anki/RichTextInput").instances?.length) {{
+                        await new Promise(requestAnimationFrame);
+                    }}
 
-                for (const {{ customStyles }} of require("anki/RichTextInput").instances) {{
-                    const {{ addStyleTag }} = await customStyles;
-                    const {{ element }} = await addStyleTag("chineseSupport");
-                    element.textContent = `{my_css}`;
-                }}
-            }})();
-            """
-        return js + my_js
+                    for (const {{ customStyles }} of require("anki/RichTextInput").instances) {{
+                        const {{ addStyleTag }} = await customStyles;
+                        const {{ element }} = await addStyleTag("chineseSupport");
+                        element.textContent = `{my_css}`;
+                    }}
+                }})();
+                """
+            return js + my_js
+        except Exception as e:
+            log.exception("Error in on_editor_will_load_note hook")
+            raise
 
     def create_css_for_webviews_from_note(self, note: anki.notes.Note):
         if not (note_type := note.note_type()):

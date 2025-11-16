@@ -40,6 +40,7 @@ from .behavior import (
     update_fields,
 )
 from .hanzi import get_hanzi
+from .log import log
 from .main import config
 from .util import (
     all_fields_empty,
@@ -281,9 +282,10 @@ def bulk_fill_defs():
                         n_updated += 1
                     else:
                         n_notfilled += 1
-            except:
+            except Exception:
                 n_failed += 1
                 failed_hanzi += [hanzi]
+                log.exception("Error while filling definitions for %r", hanzi)
 
             msg = progress_msg_template % {
                 'hanzi': hanzi,
@@ -491,9 +493,10 @@ def bulk_fill_usage():
                         n_updated += 1
                     else:
                         n_notfilled += 1
-            except:
+            except Exception:
                 n_failed += 1
                 failed_hanzi.append(hanzi)
+                log.exception("Error while filling usage examples for %r", hanzi)
 
             msg = progress_msg_template % {
                 'hanzi': hanzi,
@@ -574,9 +577,10 @@ def bulk_fill_frequency():
                         n_updated += 1
                     else:
                         n_notfilled += 1
-            except:
+            except Exception:
                 n_failed += 1
                 failed_hanzi.append(hanzi)
+                log.exception("Error while filling frequency for %r", hanzi)
 
             msg = progress_msg_template % {
                 "hanzi": hanzi,
