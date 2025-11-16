@@ -6,14 +6,15 @@ import re
 def tone_marks(text):
     """Add a space after tone-modifying punctuation.
 
-    Because the `tone_marks` tokenizer case will split after a tone-modidfying
+    Because the `tone_marks` tokenizer case will split after a tone-modifying
     punctuation mark, make sure there's whitespace after.
 
     """
     return PreProcessorRegex(
         search_args=symbols.TONE_MARKS,
         search_func=lambda x: u"(?<={})".format(x),
-        repl=' ').run(text)
+        repl=" ",
+    ).run(text)
 
 
 def end_of_line(text):
@@ -23,14 +24,13 @@ def end_of_line(text):
 
     """
     return PreProcessorRegex(
-        search_args=u'-',
-        search_func=lambda x: u"{}\n".format(x),
-        repl='').run(text)
+        search_args="-", search_func=lambda x: u"{}\n".format(x), repl=""
+    ).run(text)
 
 
 def abbreviations(text):
     """Remove periods after an abbreviation from a list of known
-    abbrevations that can be spoken the same without that period. This
+    abbreviations that can be spoken the same without that period. This
     prevents having to handle tokenization of that period.
 
     Note:
@@ -45,10 +45,11 @@ def abbreviations(text):
     return PreProcessorRegex(
         search_args=symbols.ABBREVIATIONS,
         search_func=lambda x: r"(?<={})(?=\.).".format(x),
-        repl='', flags=re.IGNORECASE).run(text)
+        repl="",
+        flags=re.IGNORECASE,
+    ).run(text)
 
 
 def word_sub(text):
     """Word-for-word substitutions."""
-    return PreProcessorSub(
-        sub_pairs=symbols.SUB_PAIRS).run(text)
+    return PreProcessorSub(sub_pairs=symbols.SUB_PAIRS).run(text)

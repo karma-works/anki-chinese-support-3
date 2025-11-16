@@ -1,0 +1,13 @@
+# Dependencies for bundled libraries in chinese/lib/
+# These are installed using: pip install --target chinese/lib/ -r requirements-lib.txt
+
+# Core dependencies
+gtts>=2.5.0
+jieba>=0.42.0
+
+# Transitive dependencies (will be installed automatically, but listed for clarity)
+# urllib3>=2.0.0  # Note: gtts may require urllib3<2.0, check compatibility
+# chardet>=5.0.0
+# certifi>=2024.0.0
+# idna>=3.0.0
+

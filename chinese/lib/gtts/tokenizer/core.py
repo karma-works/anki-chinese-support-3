@@ -2,7 +2,7 @@
 import re
 
 
-class RegexBuilder():
+class RegexBuilder:
     r"""Builds regex using arguments passed into a pattern template.
 
     Builds a regex object for which the pattern is made from an argument
@@ -11,7 +11,7 @@ class RegexBuilder():
     single pattern.
 
     Args:
-        pattern_args (iteratable): String element(s) to be each passed to
+        pattern_args (iterable): String element(s) to be each passed to
             ``pattern_func`` to create a regex pattern. Each element is
             ``re.escape``'d before being passed.
         pattern_func (callable): A 'template' function that should take a
@@ -63,14 +63,14 @@ class RegexBuilder():
             alt = self.pattern_func(arg)
             alts.append(alt)
 
-        pattern = '|'.join(alts)
+        pattern = "|".join(alts)
         return re.compile(pattern, self.flags)
 
     def __repr__(self):  # pragma: no cover
         return str(self.regex)
 
 
-class PreProcessorRegex():
+class PreProcessorRegex:
     r"""Regex-based substitution text pre-processor.
 
     Runs a series of regex substitutions (``re.sub``) from each ``regex`` of a
@@ -78,7 +78,7 @@ class PreProcessorRegex():
     replacement parameter.
 
     Args:
-        search_args (iteratable): String element(s) to be each passed to
+        search_args (iterable): String element(s) to be each passed to
             ``search_func`` to create a regex pattern. Each element is
             ``re.escape``'d before being passed.
         search_func (callable): A 'template' function that should take a
@@ -146,7 +146,7 @@ class PreProcessorRegex():
         return ", ".join(subs_strs)
 
 
-class PreProcessorSub():
+class PreProcessorSub:
     r"""Simple substitution text preprocessor.
 
     Performs string-for-string substitution from list a find/replace pairs.
@@ -159,7 +159,7 @@ class PreProcessorSub():
         ignore_case (bool): Ignore case during search. Defaults to ``True``.
 
     Example:
-        Replace all occurences of "Mac" to "PC" and "Firefox" to "Chrome"::
+        Replace all occurrences of "Mac" to "PC" and "Firefox" to "Chrome"::
 
             >>> sub_pairs = [('Mac', 'PC'), ('Firefox', 'Chrome')]
             >>> pp = PreProcessorSub(sub_pairs)
@@ -212,7 +212,7 @@ class PreProcessorSub():
         return ", ".join([str(pp) for pp in self.pre_processors])
 
 
-class Tokenizer():
+class Tokenizer:
     r"""An extensible but simple generic rule-based tokenizer.
 
     A generic and simple string tokenizer that takes a list of functions
@@ -229,7 +229,7 @@ class Tokenizer():
 
     Args:
         regex_funcs (list): List of compiled ``regex`` objects. Each
-            functions's pattern will be joined into a single pattern and
+            function's pattern will be joined into a single pattern and
             compiled.
         flags: ``re`` flag(s) to compile with the final regex. Defaults to
             ``re.IGNORECASE``
@@ -244,11 +244,11 @@ class Tokenizer():
 
     Warning:
         Joined ``regex`` patterns can easily interfere with one another in
-        unexpected ways. It is recommanded that each tokenizer case operate
-        on distinct or non-overlapping chracters/sets of characters
+        unexpected ways. It is recommended that each tokenizer case operate
+        on distinct or non-overlapping characters/sets of characters
         (For example, a tokenizer case for the period (".") should also
         handle not matching/cutting on decimals, instead of making that
-        a seperate tokenizer case).
+        a separate tokenizer case).
 
     Example:
         A tokenizer with a two simple case (*Note: these are bad cases to
@@ -297,14 +297,15 @@ class Tokenizer():
         except (TypeError, AttributeError) as e:  # pragma: no cover
             raise TypeError(
                 "Tokenizer() expects a list of functions returning "
-                "regular expression objects (i.e. re.compile). " + str(e))
+                "regular expression objects (i.e. re.compile). " + str(e)
+            )
 
     def _combine_regex(self):
         alts = []
         for func in self.regex_funcs:
             alts.append(func())
 
-        pattern = '|'.join(alt.pattern for alt in alts)
+        pattern = "|".join(alt.pattern for alt in alts)
         return re.compile(pattern, self.flags)
 
     def run(self, text):
