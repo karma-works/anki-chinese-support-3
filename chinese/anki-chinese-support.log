@@ -1,1 +1,192 @@
-2025-11-16 14:59:03,639 - INFO - anki-chinese-support - Plugin was started successfully
+2025-11-16 15:03:48,887 - INFO - anki-chinese-support - Plugin was started successfully
+2025-11-16 15:06:01,657 - WARNING - anki-chinese-support - Error closing database connection: 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/Users/hacr/Library/Application Support/Anki2/addons21/chinese-support-3/database.py", line 44, in close
+    self.conn.close()
+    ^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+2025-11-16 15:06:06,547 - INFO - anki-chinese-support - Plugin was started successfully
+2025-11-16 15:06:11,059 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:06:11,059 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:06:11,434 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:06:11,618 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:06:11,619 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:06:11,619 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:06:16,966 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:06:16,966 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:06:16,967 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:08:03,617 - INFO - anki-chinese-support - Plugin was started successfully
+2025-11-16 15:08:09,722 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:08:09,722 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:08:10,104 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:08:10,299 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:08:10,299 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:08:10,299 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:08:15,431 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:08:15,432 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:08:15,432 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:10:58,430 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:10:58,431 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:10:58,432 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:11:04,546 - INFO - anki-chinese-support - Plugin was started successfully
+2025-11-16 15:11:08,970 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:11:08,970 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:11:09,357 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:11:09,546 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:11:09,547 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:11:09,547 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:11:13,900 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:11:13,901 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:11:13,902 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:14:07,635 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:14:07,636 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:14:07,637 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:14:13,244 - INFO - anki-chinese-support - Plugin was started successfully
+2025-11-16 15:14:19,850 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:14:19,851 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:14:20,246 - DEBUG - anki-chinese-support - Fields updated successfully
+2025-11-16 15:14:20,437 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:14:20,437 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:14:20,437 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:14:37,345 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:14:37,348 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:14:37,350 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:17:22,026 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:17:22,027 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:17:22,027 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:19:37,612 - INFO - anki-chinese-support - Plugin was started successfully
+2025-11-16 15:19:43,173 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:19:43,174 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:19:43,550 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:19:43,758 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:19:43,758 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:19:43,758 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:19:47,675 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:19:47,675 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:19:47,675 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:14,994 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:14,996 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:14,997 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:23,452 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:20:23,453 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:20:23,497 - DEBUG - anki-chinese-support - Fields updated successfully
+2025-11-16 15:20:23,607 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:23,607 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:23,607 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:36,412 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:36,413 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:36,413 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:40,004 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:20:40,004 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:20:40,007 - DEBUG - anki-chinese-support - Fields updated successfully
+2025-11-16 15:20:40,109 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:40,109 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:40,109 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:44,541 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:44,541 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:44,541 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:45,140 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 2)
+2025-11-16 15:20:45,140 - DEBUG - anki-chinese-support - Processing field: Pinyin
+2025-11-16 15:20:45,142 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:45,364 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:45,364 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:45,364 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:47,658 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:20:47,658 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:20:47,662 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:48,515 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:48,515 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:48,515 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:56,564 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:20:56,564 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:20:56,587 - DEBUG - anki-chinese-support - Fields updated successfully
+2025-11-16 15:20:56,693 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:56,693 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:56,693 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:57,790 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:20:57,790 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:20:57,790 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:20:57,988 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 2)
+2025-11-16 15:20:57,988 - DEBUG - anki-chinese-support - Processing field: Pinyin
+2025-11-16 15:20:58,008 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:05,217 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 3)
+2025-11-16 15:21:05,218 - DEBUG - anki-chinese-support - Processing field: English
+2025-11-16 15:21:05,219 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:15,272 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:21:15,273 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:21:15,294 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:15,462 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:21:15,462 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:21:15,462 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:15,652 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 2)
+2025-11-16 15:21:15,652 - DEBUG - anki-chinese-support - Processing field: Pinyin
+2025-11-16 15:21:15,674 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:15,822 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 3)
+2025-11-16 15:21:15,822 - DEBUG - anki-chinese-support - Processing field: English
+2025-11-16 15:21:15,822 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:15,992 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 4)
+2025-11-16 15:21:15,992 - DEBUG - anki-chinese-support - Processing field: German
+2025-11-16 15:21:15,992 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:17,756 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 5)
+2025-11-16 15:21:17,757 - DEBUG - anki-chinese-support - Processing field: Sound
+2025-11-16 15:21:17,757 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:18,102 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 4)
+2025-11-16 15:21:18,102 - DEBUG - anki-chinese-support - Processing field: German
+2025-11-16 15:21:18,102 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:18,324 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 3)
+2025-11-16 15:21:18,325 - DEBUG - anki-chinese-support - Processing field: English
+2025-11-16 15:21:18,325 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:18,550 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 2)
+2025-11-16 15:21:18,550 - DEBUG - anki-chinese-support - Processing field: Pinyin
+2025-11-16 15:21:18,570 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:18,837 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:21:18,837 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:21:18,837 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:19,121 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:21:19,121 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:21:19,142 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:20,148 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:21:20,149 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:21:20,169 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:20,378 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:21:20,379 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:21:20,379 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:20,598 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 2)
+2025-11-16 15:21:20,598 - DEBUG - anki-chinese-support - Processing field: Pinyin
+2025-11-16 15:21:20,617 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:20,829 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 3)
+2025-11-16 15:21:20,829 - DEBUG - anki-chinese-support - Processing field: English
+2025-11-16 15:21:20,829 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:22,398 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 4)
+2025-11-16 15:21:22,399 - DEBUG - anki-chinese-support - Processing field: German
+2025-11-16 15:21:22,399 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:29,484 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:21:29,485 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:21:29,488 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:31,131 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:21:31,131 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:21:31,132 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:32,051 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:21:32,052 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:21:32,054 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:32,874 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:21:32,874 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:21:32,875 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:33,826 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 2)
+2025-11-16 15:21:33,826 - DEBUG - anki-chinese-support - Processing field: Pinyin
+2025-11-16 15:21:33,827 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:34,147 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:21:34,148 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:21:34,148 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:34,419 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:21:34,419 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:21:34,421 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:39,333 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 0)
+2025-11-16 15:21:39,334 - DEBUG - anki-chinese-support - Processing field: Hanzi
+2025-11-16 15:21:39,356 - DEBUG - anki-chinese-support - Fields updated successfully
+2025-11-16 15:21:39,476 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:21:39,477 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:21:39,477 - DEBUG - anki-chinese-support - No fields updated
+2025-11-16 15:21:44,523 - DEBUG - anki-chinese-support - onFocusLost called (changed: False, index: 1)
+2025-11-16 15:21:44,523 - DEBUG - anki-chinese-support - Processing field: Color
+2025-11-16 15:21:44,523 - DEBUG - anki-chinese-support - No fields updated

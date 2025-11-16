@@ -25,17 +25,18 @@ from anki.hooks import addHook
 from aqt import gui_hooks, mw
 
 from .behavior import update_fields
-from .log import log
+from .log import log, wrap_hook
 from .main import config
 
 
 class EditManager:
     def __init__(self):
-        addHook('setupEditorButtons', self.setupButton)
-        addHook('loadNote', self.on_load_note)
-        addHook('editFocusLost', self.onFocusLost)
-        gui_hooks.editor_state_did_change.append(self.on_editor_state_did_change)
-        gui_hooks.editor_will_load_note.append(self.on_editor_will_load_note)
+        # Wrap hooks with exception logging
+        addHook('setupEditorButtons', wrap_hook(self.setupButton))
+        addHook('loadNote', wrap_hook(self.on_load_note))
+        addHook('editFocusLost', wrap_hook(self.onFocusLost))
+        gui_hooks.editor_state_did_change.append(wrap_hook(self.on_editor_state_did_change))
+        gui_hooks.editor_will_load_note.append(wrap_hook(self.on_editor_will_load_note))
 
     def setupButton(self, buttons: list[str], editor: aqt.editor.Editor):
         try:
@@ -137,16 +138,22 @@ class EditManager:
     def onFocusLost(self, changed: bool, note: anki.notes.Note, index: int):
         field = None
         try:
+            log.debug("onFocusLost called (changed: %s, index: %d)", changed, index)
             if not self.is_enabled_for_note(note):
+                log.debug("Plugin not enabled for this note type")
                 return changed
 
             if not (note_type := note.note_type()):
+                log.debug("No note type found")
                 return changed
             allFields = mw.col.models.field_names(note_type)
             field = allFields[index] if index < len(allFields) else 'unknown'
+            log.debug("Processing field: %s", field)
             if not update_fields(note, field, allFields):
+                log.debug("No fields updated")
                 return changed
 
+            log.debug("Fields updated successfully")
             return True
         except Exception as e:
             log.exception("Error in onFocusLost hook (field: %s, index: %d)", field or 'unknown', index)

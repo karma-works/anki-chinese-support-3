@@ -168,91 +168,128 @@ def fill_usage(hanzi, note):
 
 
 def fill_transcript(hanzi, note):
-    n_filled = 0
-    separated = split_hanzi(hanzi)
+    try:
+        n_filled = 0
+        separated = split_hanzi(hanzi)
 
-    for key, target, type_ in [
-        ('bopomofo', 'bopomofo', 'trad'),
-        ('cantonese', 'jyutping', 'trad'),
-        ('pinyin', 'pinyin', 'simp'),
-        ('pinyinTaiwan', 'pinyin_tw', 'trad'),
-    ]:
-        if get_first(config['fields'][key], note) == '':
-            trans = colorize(transcribe(separated, target, type_), target)
-            trans = hide(trans, no_tone(trans))
-            set_all(config['fields'][key], note, to=trans)
-            n_filled += 1
-        else:
-            reformat_transcript(note, key, target)
+        for key, target, type_ in [
+            ('bopomofo', 'bopomofo', 'trad'),
+            ('cantonese', 'jyutping', 'trad'),
+            ('pinyin', 'pinyin', 'simp'),
+            ('pinyinTaiwan', 'pinyin_tw', 'trad'),
+        ]:
+            try:
+                if get_first(config['fields'][key], note) == '':
+                    transcribed = transcribe(separated, target, type_)
+                    trans = colorize(transcribed, target)
+                    trans = hide(trans, no_tone(trans))
+                    set_all(config['fields'][key], note, to=trans)
+                    n_filled += 1
+                else:
+                    reformat_transcript(note, key, target)
+            except Exception as e:
+                log.exception("Error filling transcript field %r for %r", key, hanzi)
+                # Continue with next field
 
-    return n_filled
+        return n_filled
+    except Exception as e:
+        log.exception("Error in fill_transcript for %r", hanzi)
+        return 0  # Return 0 instead of raising
 
 
 def reformat_transcript(note, group, target):
-    if target == 'bopomofo':
-        return
+    try:
+        if target == 'bopomofo':
+            return
 
-    transcript = get_first(config['fields'][group], note)
-    if transcript is None:
-        return
+        transcript = get_first(config['fields'][group], note)
+        if transcript is None:
+            return
 
-    clean = cleanup(transcript)
-    split = split_transcript(clean, target, grouped=True)
-    accent = accentuate(split, target)
-    color = colorize(accent)
-    hidden = hide(color, no_tone(color))
+        clean = cleanup(transcript)
+        split = split_transcript(clean, target, grouped=True)
+        accent = accentuate(split, target)
+        color = colorize(accent)
+        hidden = hide(color, no_tone(color))
 
-    set_all(config['fields'][group], note, to=hidden)
+        set_all(config['fields'][group], note, to=hidden)
+    except Exception as e:
+        log.exception("Error in reformat_transcript for group %r, target %r", group, target)
+        # Fail gracefully, don't raise
 
 
 def fill_color(hanzi, note):
-    if config['target'] in ['pinyin', 'pinyin_tw', 'bopomofo']:
-        target = 'pinyin'
-        field_group = 'pinyin'
-    elif config['target'] in 'jyutping':
-        target = 'jyutping'
-        field_group = 'jyutping'
-    else:
-        error_msg = "Unsupported target for fill_color: {}".format(config['target'])
-        log.error(error_msg)
-        raise NotImplementedError(error_msg)
+    try:
+        if config['target'] in ['pinyin', 'pinyin_tw', 'bopomofo']:
+            target = 'pinyin'
+            field_group = 'pinyin'
+        elif config['target'] in 'jyutping':
+            target = 'jyutping'
+            field_group = 'jyutping'
+        else:
+            error_msg = "Unsupported target for fill_color: {}".format(config['target'])
+            log.error(error_msg)
+            return  # Fail gracefully instead of raising
 
-    #hanziColor
-    field = get_first(config['fields'][field_group], note)
-    trans = sanitize_transcript(field, target, grouped=False)
-    trans = split_transcript(' '.join(trans), target, grouped=False)
-    hanzi = split_hanzi(cleanup(hanzi), grouped=False)
-    colorized = colorize_fuse(hanzi, trans)
-    set_all(config['fields']['colorHanzi'], note, to=colorized)
+        #hanziColor
+        trans = None
+        try:
+            field = get_first(config['fields'][field_group], note)
+            trans = sanitize_transcript(field, target, grouped=False)
+            trans = split_transcript(' '.join(trans), target, grouped=False)
+            hanzi_list = split_hanzi(cleanup(hanzi), grouped=False)
+            colorized = colorize_fuse(hanzi_list, trans)
+            set_all(config['fields']['colorHanzi'], note, to=colorized)
+        except Exception as e:
+            log.exception("Error filling colorHanzi for %r", hanzi)
 
-    #traditional color
-    tradHanzi = get_first(config['fields']['traditional'], note)
-    if tradHanzi:
-        tradHanzi = split_hanzi(cleanup(tradHanzi), grouped=False)
-        colorized = colorize_fuse(tradHanzi, trans)
-        set_all(config['fields']['colorTraditional'], note, to=colorized)
+        #traditional color
+        tradHanzi = None
+        try:
+            tradHanzi = get_first(config['fields']['traditional'], note)
+            if tradHanzi and trans:
+                tradHanzi_list = split_hanzi(cleanup(tradHanzi), grouped=False)
+                colorized = colorize_fuse(tradHanzi_list, trans)
+                set_all(config['fields']['colorTraditional'], note, to=colorized)
+        except Exception as e:
+            log.exception("Error filling colorTraditional for %r", hanzi)
 
-    #cantonese color
-    cantoField = get_first(config['fields']['cantonese'], note)
-    if cantoField:
-        hanzi = tradHanzi if tradHanzi else hanzi
-        cantoTrans = sanitize_transcript(cantoField, "jyutping", grouped=False)
-        colorized = colorize_fuse(hanzi, cantoTrans)
-        set_all(config['fields']['colorCantonese'], note, to=colorized)
+        #cantonese color
+        try:
+            cantoField = get_first(config['fields']['cantonese'], note)
+            if cantoField:
+                hanzi_for_canto = split_hanzi(cleanup(tradHanzi if tradHanzi else hanzi), grouped=False)
+                cantoTrans = sanitize_transcript(cantoField, "jyutping", grouped=False)
+                colorized = colorize_fuse(hanzi_for_canto, cantoTrans)
+                set_all(config['fields']['colorCantonese'], note, to=colorized)
+        except Exception as e:
+            log.exception("Error filling colorCantonese for %r", hanzi)
+    except Exception as e:
+        log.exception("Error in fill_color for %r", hanzi)
+        # Fail gracefully, don't raise
 
 
 def fill_sound(hanzi, note):
-    updated = 0
-    errors = 0
-    for f in config['fields']['sound'] + config['fields']['mandarinSound']:
-        if f in note and note[f] == '':
-            s = sound(hanzi, config['speech'])
-            if s:
-                note[f] = s
-                updated += 1
-            else:
-                errors += 1
-    return updated, errors
+    try:
+        updated = 0
+        errors = 0
+        for f in config['fields']['sound'] + config['fields']['mandarinSound']:
+            if f in note and note[f] == '':
+                try:
+                    s = sound(hanzi, config['speech'])
+                    if s:
+                        note[f] = s
+                        updated += 1
+                    else:
+                        errors += 1
+                except Exception as e:
+                    log.info("Error getting sound for %r: %s", hanzi, e)
+                    errors += 1
+        return updated, errors
+    except Exception as e:
+        log.exception("Error in fill_sound for %r", hanzi)
+        # Return (0, 1) to indicate failure but don't crash
+        return 0, 1
 
 
 def fill_simp(hanzi, note):
@@ -290,42 +327,50 @@ def fill_frequency(hanzi, note) -> bool:
 
 
 def fill_ruby(hanzi, note, trans_group, ruby_group):
-    if trans_group == 'bopomofo':
-        trans = flatten(
-            s.split()
-            for s in transcribe(
-                split_hanzi(hanzi, grouped=True), 'bopomofo', 'trad'
+    try:
+        if trans_group == 'bopomofo':
+            trans = flatten(
+                s.split()
+                for s in transcribe(
+                    split_hanzi(hanzi, grouped=True), 'bopomofo', 'trad'
+                )
             )
-        )
-    elif trans_group in ['pinyin', 'pinyinTaiwan']:
-        field = get_first(config['fields'][trans_group], note)
-        trans = sanitize_transcript(field, 'pinyin', grouped=False)
-    elif trans_group == 'cantonese':
-        field = get_first(config['fields'][trans_group], note)
-        trans = sanitize_transcript(field, 'jyutping', grouped=False)
-    else:
-        error_msg = "Unsupported trans_group for fill_ruby: {}".format(trans_group)
-        log.error(error_msg)
-        raise NotImplementedError(error_msg)
+        elif trans_group in ['pinyin', 'pinyinTaiwan']:
+            field = get_first(config['fields'][trans_group], note)
+            trans = sanitize_transcript(field, 'pinyin', grouped=False)
+        elif trans_group == 'cantonese':
+            field = get_first(config['fields'][trans_group], note)
+            trans = sanitize_transcript(field, 'jyutping', grouped=False)
+        else:
+            error_msg = "Unsupported trans_group for fill_ruby: {}".format(trans_group)
+            log.error(error_msg)
+            return  # Fail gracefully instead of raising
 
-    hanzi = split_hanzi(cleanup(hanzi), grouped=False)
-    rubified = colorize_fuse(hanzi, trans, ruby=True)
-    set_all(config['fields'][ruby_group], note, to=rubified)
+        hanzi = split_hanzi(cleanup(hanzi), grouped=False)
+        rubified = colorize_fuse(hanzi, trans, ruby=True)
+        set_all(config['fields'][ruby_group], note, to=rubified)
+    except Exception as e:
+        log.exception("Error in fill_ruby for %r, trans_group %r, ruby_group %r", hanzi, trans_group, ruby_group)
+        # Fail gracefully, don't raise
 
 
 def fill_all_rubies(hanzi, note):
-    for trans_group in ['pinyin', 'pinyinTaiwan', 'cantonese', 'bopomofo']:
-        if has_any_field(config['fields'][trans_group], note):
-            fill_ruby(hanzi, note, trans_group, 'ruby')
-            break
+    try:
+        for trans_group in ['pinyin', 'pinyinTaiwan', 'cantonese', 'bopomofo']:
+            if has_any_field(config['fields'][trans_group], note):
+                fill_ruby(hanzi, note, trans_group, 'ruby')
+                break
 
-    for trans_group, ruby_group in [
-        ('pinyin', 'rubyPinyin'),
-        ('pinyinTaiwan', 'rubyPinyinTaiwan'),
-        ('cantonese', 'rubyCantonese'),
-        ('bopomofo', 'rubyBopomofo'),
-    ]:
-        fill_ruby(hanzi, note, trans_group, ruby_group)
+        for trans_group, ruby_group in [
+            ('pinyin', 'rubyPinyin'),
+            ('pinyinTaiwan', 'rubyPinyinTaiwan'),
+            ('cantonese', 'rubyCantonese'),
+            ('bopomofo', 'rubyBopomofo'),
+        ]:
+            fill_ruby(hanzi, note, trans_group, ruby_group)
+    except Exception as e:
+        log.exception("Error in fill_all_rubies for %r", hanzi)
+        # Fail gracefully, don't raise
 
 
 def update_fields(note, focus_field, fields):
@@ -380,4 +425,5 @@ def update_fields(note, focus_field, fields):
         return updated
     except Exception as e:
         log.exception("Error in update_fields (focus_field: %r, hanzi: %r)", focus_field, hanzi if 'hanzi' in locals() else 'unknown')
-        raise
+        # Return False to indicate no update instead of raising
+        return False

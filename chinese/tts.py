@@ -25,20 +25,30 @@ requests.packages.urllib3.disable_warnings()
 
 class AudioDownloader:
     def __init__(self, text, source='google|zh-CN'):
-        self.text = text
-        self.service, self.lang = source.split('|')
-        self.path = self.get_path()
-        self.func = {
-            'google': self.get_google,
-            'baidu': self.get_baidu,
-            'aws': self.get_aws,
-        }.get(self.service)
+        try:
+            self.text = text
+            if source.count('|') != 1:
+                raise ValueError("Invalid source format (expected 'service|lang'): {}".format(source))
+            self.service, self.lang = source.split('|')
+            self.path = self.get_path()
+            self.func = {
+                'google': self.get_google,
+                'baidu': self.get_baidu,
+                'aws': self.get_aws,
+            }.get(self.service)
+        except Exception as e:
+            log.info("Error initializing AudioDownloader for %r with source %r: %s", text, source, e)
+            raise
 
     def get_path(self):
-        filename = '{}_{}_{}.mp3'.format(
-            self.sanitize(self.text), self.service, self.lang
-        )
-        return join(mw.col.media.dir(), filename)
+        try:
+            filename = '{}_{}_{}.mp3'.format(
+                self.sanitize(self.text), self.service, self.lang
+            )
+            return join(mw.col.media.dir(), filename)
+        except Exception as e:
+            log.info("Error getting media path for %r: %s", self.text, e)
+            raise
 
     def sanitize(self, s):
         return sub(r'[/:*?"<>|]', '', s)
@@ -52,16 +62,23 @@ class AudioDownloader:
             log.error(error_msg)
             raise NotImplementedError(self.service)
 
-        self.func()
-
-        return basename(self.path)
+        try:
+            self.func()
+            return basename(self.path)
+        except Exception as e:
+            # Log any download failures as info (not errors, since TTS can be unreliable)
+            log.info("Could not download audio for %r using %s: %s", self.text, self.service, e)
+            # Re-raise so sound() can handle it appropriately
+            raise
 
     def get_google(self):
         tts = gTTS(self.text, lang=self.lang, tld='com')
         try:
             tts.save(self.path)
         except gTTSError as e:
-            log.error("gTTS Error while saving audio for %r: %s", self.text, e, exc_info=True)
+            log.info("Could not download audio for %r using gTTS: %s", self.text, e)
+            # Re-raise so download() knows it failed
+            raise
 
     def get_baidu(self):
         query = {
@@ -83,34 +100,42 @@ class AudioDownloader:
         context = ssl.create_default_context()
         context.set_alpn_protocols(['http/1.1'])
 
-        with urlopen(request, context=context, timeout=5) as response, open(self.path, 'wb') as audio:
-            if response.code != 200:
-                error_msg = 'Baidu TTS request failed: {}: {}'.format(response.code, response.msg)
-                log.error(error_msg)
-                raise ValueError(error_msg)
+        try:
+            with urlopen(request, context=context, timeout=5) as response, open(self.path, 'wb') as audio:
+                if response.code != 200:
+                    error_msg = 'Baidu TTS request failed: {}: {}'.format(response.code, response.msg)
+                    log.info("Could not download audio for %r using Baidu: %s", self.text, error_msg)
+                    raise ValueError(error_msg)
 
-            bytes_response = response.read()
-            audio.write(bytes_response)
+                bytes_response = response.read()
+                audio.write(bytes_response)
+        except Exception as e:
+            log.info("Could not download audio for %r using Baidu: %s", self.text, e)
+            raise
 
     def get_aws(self):
-        signer = AWS4Signer(service='polly')
-        signer.use_aws_profile('chinese_support_redux')
+        try:
+            signer = AWS4Signer(service='polly')
+            signer.use_aws_profile('chinese_support_redux')
 
-        url = 'https://polly.%s.amazonaws.com/v1/speech' % (signer.region_name)
-        query = {
-            'OutputFormat': 'mp3',
-            'Text': self.text,
-            'VoiceId': self.lang,
-        }
+            url = 'https://polly.%s.amazonaws.com/v1/speech' % (signer.region_name)
+            query = {
+                'OutputFormat': 'mp3',
+                'Text': self.text,
+                'VoiceId': self.lang,
+            }
 
-        response = requests.post(url, json=query, auth=signer)
+            response = requests.post(url, json=query, auth=signer)
 
-        if response.status_code != 200:
-            error_msg = 'Polly Request Failed: Error Code {}'.format(
-                response.status_code
-            )
-            log.error(error_msg)
-            raise ValueError(error_msg)
+            if response.status_code != 200:
+                error_msg = 'Polly Request Failed: Error Code {}'.format(
+                    response.status_code
+                )
+                log.info("Could not download audio for %r using AWS Polly: %s", self.text, error_msg)
+                raise ValueError(error_msg)
 
-        with open(self.path, 'wb') as audio:
-            audio.write(response.content)
+            with open(self.path, 'wb') as audio:
+                audio.write(response.content)
+        except Exception as e:
+            log.info("Could not download audio for %r using AWS Polly: %s", self.text, e)
+            raise

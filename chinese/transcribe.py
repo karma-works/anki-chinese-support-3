@@ -33,6 +33,7 @@ from .consts import (
     TONE_NUM_REGEX,
 )
 from .hanzi import has_hanzi
+from .log import log
 from .main import dictionary
 from .ruby import has_ruby, ruby_bottom, ruby_top, separate_ruby
 from .util import cleanup, is_punc, no_color
@@ -58,38 +59,68 @@ def is_sentence(s):
 
 
 def transcribe(words, target, type_):
-    assert isinstance(words, list)
+    try:
+        assert isinstance(words, list)
 
-    if target == 'pinyin':
-        prefer_tw = False
-    elif target in ['pinyin_tw', 'bopomofo']:
-        prefer_tw = True
-    elif target != 'jyutping':
-        raise NotImplementedError(target)
+        if target == 'pinyin':
+            prefer_tw = False
+        elif target in ['pinyin_tw', 'bopomofo']:
+            prefer_tw = True
+        elif target != 'jyutping':
+            error_msg = f"Unsupported target for transcribe: {target}"
+            log.error(error_msg)
+            # Return empty list instead of raising
+            return []
 
-    transcribed = []
+        transcribed = []
 
-    if not list(filter(has_hanzi, words)):
-        return transcribed
+        if not list(filter(has_hanzi, words)):
+            return transcribed
 
-    for text in words:
-        text = cleanup(text)
+        for text in words:
+            try:
+                text = cleanup(text)
 
-        if not has_hanzi(text):
-            transcribed.append(text)
-            continue
+                if not has_hanzi(text):
+                    transcribed.append(text)
+                    continue
 
-        if target in ['pinyin', 'pinyin_tw', 'bopomofo']:
-            s = dictionary.get_pinyin(text, type_, prefer_tw)
-        elif target == 'jyutping':
-            s = dictionary.get_cantonese(text, type_)
+                try:
+                    if target in ['pinyin', 'pinyin_tw', 'bopomofo']:
+                        s = dictionary.get_pinyin(text, type_, prefer_tw)
+                    elif target == 'jyutping':
+                        s = dictionary.get_cantonese(text, type_)
+                    else:
+                        log.warning("Unknown target %r in transcribe, skipping %r", target, text)
+                        transcribed.append(text)
+                        continue
+                except Exception as e:
+                    log.exception("Error getting transcription for %r (target: %r, type: %r)", text, target, type_)
+                    # Skip this word on error
+                    transcribed.append(text)
+                    continue
 
-        if target == 'bopomofo':
-            transcribed.extend(bopomofo([s]))
-        else:
-            transcribed.append(s)
+                try:
+                    if target == 'bopomofo':
+                        transcribed.extend(bopomofo([s]))
+                    else:
+                        transcribed.append(s)
+                except Exception as e:
+                    log.exception("Error processing bopomofo for %r", s)
+                    # Fallback to original transcription
+                    transcribed.append(s)
+            except Exception as e:
+                log.exception("Error processing word %r in transcribe", text)
+                # Add original text on error
+                transcribed.append(text if isinstance(text, str) else '')
 
-    return convert_punc(transcribed)
+        return convert_punc(transcribed)
+    except Exception as e:
+        log.exception("Error in transcribe for words %r, target %r, type %r", words, target, type_)
+        # Return empty list or original words as fallback
+        if isinstance(words, list):
+            return words
+        return []
 
 
 def transcribe_char(hanzi, target, type_):
@@ -198,67 +229,106 @@ def get_tone_number_pinyin(syllable):
 
 
 def split_transcript(transcript, target, grouped=True):
-    assert isinstance(transcript, str)
+    try:
+        assert isinstance(transcript, str)
 
-    if target not in ['pinyin', 'pinyin_tw', 'jyutping']:
-        raise NotImplementedError(target)
+        if target not in ['pinyin', 'pinyin_tw', 'jyutping']:
+            error_msg = f"Unsupported target for split_transcript: {target}"
+            log.error(error_msg)
+            # Return transcript as single item instead of raising
+            return [transcript] if grouped else transcript.split()
 
-    def _split(pattern, s):
-        if search(f'^{pattern}$', s, IGNORECASE):
-            return s
+        def _split(pattern, s):
+            try:
+                if search(f'^{pattern}$', s, IGNORECASE):
+                    return s
 
-        remainder = s.replace("'", '')
-        done = []
-        while True:
-            found = False
-            for i in range(len(remainder), 0, -1):
-                if search(f'^{pattern}$', remainder[:i], IGNORECASE):
-                    done.append(remainder[:i])
-                    remainder = remainder[i:]
-                    found = True
-                    break
-            if found and remainder:
-                continue
-            elif remainder:
-                done.append(remainder)
-                break
-            else:
-                break
-        return ' '.join(done)
+                remainder = s.replace("'", '')
+                done = []
+                while True:
+                    found = False
+                    for i in range(len(remainder), 0, -1):
+                        if search(f'^{pattern}$', remainder[:i], IGNORECASE):
+                            done.append(remainder[:i])
+                            remainder = remainder[i:]
+                            found = True
+                            break
+                    if found and remainder:
+                        continue
+                    elif remainder:
+                        done.append(remainder)
+                        break
+                    else:
+                        break
+                return ' '.join(done)
+            except Exception as e:
+                log.exception("Error in split_transcript._split for pattern %r, text %r", pattern, s)
+                # Return original text on error
+                return s
 
-    separated = []
+        separated = []
 
-    for text in split(NOT_PINYIN_REGEX, transcript):
-        if target in ['pinyin', 'pinyin_tw']:
-            text = _split(PINYIN_REGEX, text)
-        elif target == 'jyutping':
-            text = _split(JYUTPING_REGEX, text)
+        for text in split(NOT_PINYIN_REGEX, transcript):
+            try:
+                if target in ['pinyin', 'pinyin_tw']:
+                    text = _split(PINYIN_REGEX, text)
+                elif target == 'jyutping':
+                    text = _split(JYUTPING_REGEX, text)
 
-        if grouped:
-            separated.append(text)
-        else:
-            separated.extend(text.split())
+                if grouped:
+                    separated.append(text)
+                else:
+                    separated.extend(text.split())
+            except Exception as e:
+                log.exception("Error processing text %r in split_transcript", text)
+                # Add original text on error
+                separated.append(text)
 
-    return list(filter(lambda s: s.strip(), separated))
+        return list(filter(lambda s: s.strip(), separated))
+    except Exception as e:
+        log.exception("Error in split_transcript for transcript %r, target %r", transcript, target)
+        # Return safe fallback
+        if isinstance(transcript, str):
+            return [transcript] if grouped else transcript.split()
+        return []
 
 
 def tone_number(s):
-    assert isinstance(s, str)
+    try:
+        assert isinstance(s, str)
 
-    s, *_ = replace_tone_marks([cleanup(s)])
+        try:
+            s, *_ = replace_tone_marks([cleanup(s)])
+        except Exception as e:
+            log.exception("Error in replace_tone_marks for %r in tone_number", s)
+            # Continue with original s
 
-    if search(f'[¹²³⁴]$', s):
-        return str(' ¹²³⁴'.index(s[-1:]))
+        try:
+            if search(f'[¹²³⁴]$', s):
+                return str(' ¹²³⁴'.index(s[-1:]))
+        except (ValueError, IndexError) as e:
+            log.debug("Could not find tone superscript in %r", s)
 
-    if search(f'[{TONE_NUMBERS}]$', s):
-        return s[-1]
+        try:
+            if search(f'[{TONE_NUMBERS}]$', s):
+                return s[-1]
+        except (IndexError, AttributeError) as e:
+            log.debug("Could not extract tone number from %r", s)
 
-    if search(BOPOMOFO_REGEX, s):
-        if search(r'[ˊˇˋ˙]$', s):
-            return str('  ˊˇˋ˙'.index(s[-1]))
-        return '1'
+        try:
+            if search(BOPOMOFO_REGEX, s):
+                if search(r'[ˊˇˋ˙]$', s):
+                    return str('  ˊˇˋ˙'.index(s[-1]))
+                return '1'
+        except (ValueError, IndexError) as e:
+            log.debug("Could not extract bopomofo tone from %r", s)
 
-    return '5'
+        # Default to neutral tone
+        return '5'
+    except Exception as e:
+        log.exception("Error in tone_number for %r", s)
+        # Return neutral tone as safe default
+        return '5'
 
 
 def no_tone(text: str):
@@ -277,9 +347,18 @@ def no_tone(text: str):
 
 
 def sanitize_transcript(transcript, target, grouped=False):
-    return ' '.join(
-        accentuate(
-            split_transcript(cleanup(no_color(transcript)), target, grouped),
-            target,
-        )
-    ).split()
+    try:
+        return ' '.join(
+            accentuate(
+                split_transcript(cleanup(no_color(transcript)), target, grouped),
+                target,
+            )
+        ).split()
+    except Exception as e:
+        log.exception("Error in sanitize_transcript for transcript %r, target %r", transcript, target)
+        # Return empty list or try to return cleaned transcript
+        try:
+            cleaned = cleanup(no_color(transcript))
+            return [cleaned] if cleaned else []
+        except Exception:
+            return []

@@ -29,6 +29,7 @@ from .consts import (
     RUBY_REGEX,
 )
 from .hanzi import split_hanzi
+from .log import log
 from .sound import extract_tags
 from .transcribe import tone_number, sanitize_transcript
 from .util import align, is_punc, no_color
@@ -37,90 +38,144 @@ from .util import align, is_punc, no_color
 def colorize(words, target='pinyin', ruby_whole=False):
     from .ruby import has_ruby
 
-    assert isinstance(words, list)
+    try:
+        assert isinstance(words, list)
 
-    def _repl(p):
-        return COLOR_TEMPLATE.format(
-            tone=tone_number(p.group(1)), chars=p.group()
-        )
+        def _repl(p):
+            try:
+                return COLOR_TEMPLATE.format(
+                    tone=tone_number(p.group(1)), chars=p.group()
+                )
+            except Exception as e:
+                log.exception("Error calculating tone in colorize._repl for %r", p.group(1))
+                # Return default tone5 on error
+                return COLOR_TEMPLATE.format(tone='5', chars=p.group())
 
-    done = []
+        done = []
 
-    d = {
-        'pinyin': PINYIN_REGEX,
-        'pinyin_tw': PINYIN_REGEX,
-        'jyutping': JYUTPING_REGEX,
-        'bopomofo': BOPOMOFO_REGEX,
-    }
+        d = {
+            'pinyin': PINYIN_REGEX,
+            'pinyin_tw': PINYIN_REGEX,
+            'jyutping': JYUTPING_REGEX,
+            'bopomofo': BOPOMOFO_REGEX,
+        }
 
-    for word in words:
-        (word, sound_tags) = extract_tags(no_color(word))
+        for word in words:
+            try:
+                (word, sound_tags) = extract_tags(no_color(word))
 
-        if target in d:
-            pattern = d[target]
-            text = ''
-            for syllable in word.split():
-                if search(f'^{pattern}$', syllable):
-                    text += sub(f'^{pattern}$', _repl, syllable, IGNORECASE)
-                elif has_ruby(syllable):
-                    if ruby_whole:
-                        pattern = RUBY_REGEX
-                    else:
-                        pattern = HALF_RUBY_REGEX
-                    text += sub(pattern, _repl, syllable, IGNORECASE)
+                if target in d:
+                    pattern = d[target]
+                    text = ''
+                    for syllable in word.split():
+                        try:
+                            if search(f'^{pattern}$', syllable):
+                                text += sub(f'^{pattern}$', _repl, syllable, IGNORECASE)
+                            elif has_ruby(syllable):
+                                if ruby_whole:
+                                    pattern = RUBY_REGEX
+                                else:
+                                    pattern = HALF_RUBY_REGEX
+                                text += sub(pattern, _repl, syllable, IGNORECASE)
+                            else:
+                                text += f'<span class="tone5">{syllable}</span>'
+                        except Exception as e:
+                            log.exception("Error processing syllable %r in colorize", syllable)
+                            # Fallback to tone5 for this syllable
+                            text += f'<span class="tone5">{syllable}</span>'
                 else:
-                    text += f'<span class="tone5">{syllable}</span>'
-        else:
-            raise NotImplementedError(target)
+                    error_msg = f"Unsupported target for colorize: {target}"
+                    log.error(error_msg)
+                    # Return words with default tone5 instead of raising
+                    return ' '.join(f'<span class="tone5">{w}</span>' for w in words)
 
-        done.append(text + sound_tags)
+                done.append(text + sound_tags)
+            except Exception as e:
+                log.exception("Error processing word %r in colorize", word)
+                # Fallback: return word with default tone5
+                done.append(f'<span class="tone5">{word}</span>')
 
-    return ' '.join(done)
+        return ' '.join(done)
+    except Exception as e:
+        log.exception("Error in colorize for words %r, target %r", words, target)
+        # Return safe fallback
+        if isinstance(words, list):
+            return ' '.join(f'<span class="tone5">{w}</span>' for w in words)
+        return ''
 
 
 def colorize_dict(text):
-    assert isinstance(text, str)
+    try:
+        assert isinstance(text, str)
 
-    def _sub(p):
-        s = ''
-        hanzi = p.group(1)
-        pinyin = sanitize_transcript(p.group(2), 'pinyin', grouped=False)
-        delim = '|'
+        def _sub(p):
+            try:
+                s = ''
+                hanzi = p.group(1)
+                pinyin = sanitize_transcript(p.group(2), 'pinyin', grouped=False)
+                delim = '|'
 
-        if hanzi.count(delim) == 1:
-            hanzi = hanzi.split(delim)
-            s += colorize_fuse(
-                split_hanzi(hanzi[0], grouped=False), pinyin, True
-            )
-            s += delim
-            s += colorize_fuse(
-                split_hanzi(hanzi[1], grouped=False), pinyin, False
-            )
-        else:
-            s += colorize_fuse(split_hanzi(hanzi, grouped=False), pinyin, True)
+                if hanzi.count(delim) == 1:
+                    hanzi = hanzi.split(delim)
+                    s += colorize_fuse(
+                        split_hanzi(hanzi[0], grouped=False), pinyin, True
+                    )
+                    s += delim
+                    s += colorize_fuse(
+                        split_hanzi(hanzi[1], grouped=False), pinyin, False
+                    )
+                else:
+                    s += colorize_fuse(split_hanzi(hanzi, grouped=False), pinyin, True)
 
-        return s
+                return s
+            except Exception as e:
+                log.exception("Error in colorize_dict._sub for %r", p.group(0))
+                # Return uncolored text on error
+                return p.group(0)
 
-    return sub(r'([\%s|]+)\[(.*?)\]' % HANZI_RANGE, _sub, text)
+        return sub(r'([\%s|]+)\[(.*?)\]' % HANZI_RANGE, _sub, text)
+    except Exception as e:
+        log.exception("Error in colorize_dict for text %r", text)
+        # Return original text on error
+        return text if isinstance(text, str) else ''
 
 
 def colorize_fuse(chars: list, trans: list, ruby=False):
-    assert isinstance(chars, list)
-    assert isinstance(trans, list)
+    try:
+        assert isinstance(chars, list)
+        assert isinstance(trans, list)
 
-    colorized = ''
+        colorized = ''
 
-    for c, t in align(chars, trans):
-        if c is None or t is None:
-            continue
-        if is_punc(c) and is_punc(t):
-            colorized += c
-            continue
-        if ruby:
-            colorized += COLOR_RUBY_TEMPLATE.format(
-                tone=tone_number(t), chars=c, trans=t
-            )
-        else:
-            colorized += COLOR_TEMPLATE.format(tone=tone_number(t), chars=c)
+        for c, t in align(chars, trans):
+            try:
+                if c is None or t is None:
+                    continue
+                if is_punc(c) and is_punc(t):
+                    colorized += c
+                    continue
+                try:
+                    tone = tone_number(t)
+                except Exception as e:
+                    log.exception("Error calculating tone_number for %r in colorize_fuse", t)
+                    tone = '5'  # Default to neutral tone
+                
+                if ruby:
+                    colorized += COLOR_RUBY_TEMPLATE.format(
+                        tone=tone, chars=c, trans=t
+                    )
+                else:
+                    colorized += COLOR_TEMPLATE.format(tone=tone, chars=c)
+            except Exception as e:
+                log.exception("Error processing char %r, trans %r in colorize_fuse", c, t)
+                # Fallback: add char with default tone5
+                if c:
+                    colorized += COLOR_TEMPLATE.format(tone='5', chars=c)
 
-    return colorized
+        return colorized
+    except Exception as e:
+        log.exception("Error in colorize_fuse for chars %r, trans %r, ruby %r", chars, trans, ruby)
+        # Return uncolored chars as fallback
+        if isinstance(chars, list):
+            return ''.join(c if c else '' for c in chars)
+        return ''

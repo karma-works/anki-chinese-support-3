@@ -15,43 +15,54 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
 
-# Note: wrap is deprecated but no direct replacement hook exists yet for CollectionStats.todayStats
-# TODO: Replace with gui_hooks when a stats hook becomes available
-from anki.hooks import wrap
-from aqt import gui_hooks
-from anki.stats import CollectionStats
-from anki.stdmodels import models
+# Import log first to ensure exception handlers are installed
+# This must happen before any other imports that might fail
+from .log import log, wrap_hook
 
-from .config import ConfigManager
-from .database import Dictionary
-from .log import log
-
-config = ConfigManager()
-dictionary = Dictionary()
-
-from .edit import EditManager
-from .graph import todayStats
-from .gui import load_menu, unload_menu
-from .models import advanced, basic
-from .templates import chinese, ruby
-
-
-if config['firstRun']:
-    dictionary.create_indices()
-    config['firstRun'] = False
+# Import Anki modules and plugin dependencies with error handling
+try:
+    # Note: wrap is deprecated but no direct replacement hook exists yet for CollectionStats.todayStats
+    # TODO: Replace with gui_hooks when a stats hook becomes available
+    from anki.hooks import wrap
+    from aqt import gui_hooks
+    from anki.stats import CollectionStats
+    from anki.stdmodels import models
+    
+    from .config import ConfigManager
+    from .database import Dictionary
+    
+    config = ConfigManager()
+    dictionary = Dictionary()
+    
+    from .edit import EditManager
+    from .graph import todayStats
+    from .gui import load_menu, unload_menu
+    from .models import advanced, basic
+    from .templates import chinese, ruby
+    
+    if config['firstRun']:
+        dictionary.create_indices()
+        config['firstRun'] = False
+except ImportError as e:
+    log.exception("Failed to import required dependencies (missing module: %s)", e.name if hasattr(e, 'name') else 'unknown')
+    raise
+except Exception as e:
+    log.exception("Failed to import plugin dependencies")
+    raise
 
 
 def load():
     ruby.install()
     chinese.install()
-    gui_hooks.profile_did_open.append(load_menu)
-    gui_hooks.profile_did_open.append(add_models)
-    gui_hooks.profile_did_open.append(dictionary.connect)
-    gui_hooks.profile_will_close.append(config.save)
-    gui_hooks.profile_will_close.append(dictionary.close)
-    gui_hooks.profile_will_close.append(unload_menu)
+    # Wrap all hooks with exception logging
+    gui_hooks.profile_did_open.append(wrap_hook(load_menu))
+    gui_hooks.profile_did_open.append(wrap_hook(add_models))
+    gui_hooks.profile_did_open.append(wrap_hook(dictionary.connect))
+    gui_hooks.profile_will_close.append(wrap_hook(config.save))
+    gui_hooks.profile_will_close.append(wrap_hook(dictionary.close))
+    gui_hooks.profile_will_close.append(wrap_hook(unload_menu))
     CollectionStats.todayStats = wrap(
-        CollectionStats.todayStats, todayStats, 'around'
+        CollectionStats.todayStats, wrap_hook(todayStats), 'around'
     )
     EditManager()
     log.info("Plugin was started successfully")

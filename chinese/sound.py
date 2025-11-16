@@ -51,7 +51,13 @@ def sound(hanzi, source=None):
         return ''
 
     if source:
-        return '[sound:%s]' % AudioDownloader(hanzi, source).download()
+        try:
+            return '[sound:%s]' % AudioDownloader(hanzi, source).download()
+        except Exception as e:
+            # Audio download failed - log as info and return empty string
+            # This is expected behavior when TTS services are unavailable
+            log.info("Audio download failed for %r: %s", hanzi, e)
+            return ''
 
     return ''
 
