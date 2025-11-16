@@ -19,6 +19,8 @@
 
 import anki.notes
 import aqt.editor
+# Note: addHook is deprecated but some hooks don't have gui_hooks replacements yet
+# TODO: Migrate to gui_hooks when replacements become available
 from anki.hooks import addHook
 from aqt import gui_hooks, mw
 

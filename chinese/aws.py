@@ -17,7 +17,7 @@
 # Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
 
 from configparser import ConfigParser
-from datetime import datetime
+from datetime import datetime, timezone
 from hashlib import sha256
 from os.path import expanduser, join
 from re import sub
@@ -158,7 +158,7 @@ class AWS4Signer:
 
         P = urlparse(self.request.url)
 
-        t = datetime.utcnow()
+        t = datetime.now(timezone.utc)
         self.amzdate = t.strftime('%Y%m%dT%H%M%SZ')
         self.datestamp = t.strftime('%Y%m%d')
         self.request.headers['x-amz-date'] = self.amzdate

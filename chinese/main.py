@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
 
+# Note: wrap is deprecated but no direct replacement hook exists yet for CollectionStats.todayStats
+# TODO: Replace with gui_hooks when a stats hook becomes available
 from anki.hooks import wrap
 from aqt import gui_hooks
 from anki.stats import CollectionStats

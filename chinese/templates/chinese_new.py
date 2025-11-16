@@ -9,6 +9,7 @@
 
 
 import re
+from functools import reduce
 from anki import hooks
 from anki.utils import strip_html
 from anki.template import TemplateRenderContext
@@ -71,7 +72,7 @@ def hanzi_context(
     to allow the user to identify the correct hanzi from a note.
     '''
     other_hanzi = []
-    for k, v in context.iteritems():
+    for k, v in context.items():
         if re.match(r'Hanzi.*', k, flags=re.IGNORECASE) and v != txt :
             other_hanzi += [k]
     if len(other_hanzi)<1:
