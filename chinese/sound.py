@@ -28,7 +28,7 @@ from .tts import AudioDownloader
 def sound(hanzi, source=None):
     """Returns sound tag for a given Hanzi string."""
 
-    from .ruby import ruby_bottom, has_ruby
+    from .ruby import has_ruby, ruby_bottom
 
     if not has_hanzi(hanzi):
         return ''

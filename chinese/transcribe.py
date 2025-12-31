@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import findall, IGNORECASE, search, split, sub
+from re import IGNORECASE, findall, search, split, sub
 from unicodedata import lookup, name, normalize
 
 from .bopomofo import bopomofo
@@ -28,9 +28,8 @@ from .consts import (
     JYUTPING_REGEX,
     NOT_PINYIN_REGEX,
     PINYIN_REGEX,
-    PINYIN_VOWELS,
-    TONE_NUMBERS,
     TONE_NUM_REGEX,
+    TONE_NUMBERS,
 )
 from .hanzi import has_hanzi
 from .log import log
@@ -94,7 +93,7 @@ def transcribe(words, target, type_):
                         log.warning("Unknown target %r in transcribe, skipping %r", target, text)
                         transcribed.append(text)
                         continue
-                except Exception as e:
+                except Exception:
                     log.exception("Error getting transcription for %r (target: %r, type: %r)", text, target, type_)
                     # Skip this word on error
                     transcribed.append(text)
@@ -105,17 +104,17 @@ def transcribe(words, target, type_):
                         transcribed.extend(bopomofo([s]))
                     else:
                         transcribed.append(s)
-                except Exception as e:
+                except Exception:
                     log.exception("Error processing bopomofo for %r", s)
                     # Fallback to original transcription
                     transcribed.append(s)
-            except Exception as e:
+            except Exception:
                 log.exception("Error processing word %r in transcribe", text)
                 # Add original text on error
                 transcribed.append(text if isinstance(text, str) else '')
 
         return convert_punc(transcribed)
-    except Exception as e:
+    except Exception:
         log.exception("Error in transcribe for words %r, target %r, type %r", words, target, type_)
         # Return empty list or original words as fallback
         if isinstance(words, list):
@@ -261,7 +260,7 @@ def split_transcript(transcript, target, grouped=True):
                     else:
                         break
                 return ' '.join(done)
-            except Exception as e:
+            except Exception:
                 log.exception("Error in split_transcript._split for pattern %r, text %r", pattern, s)
                 # Return original text on error
                 return s
@@ -279,13 +278,13 @@ def split_transcript(transcript, target, grouped=True):
                     separated.append(text)
                 else:
                     separated.extend(text.split())
-            except Exception as e:
+            except Exception:
                 log.exception("Error processing text %r in split_transcript", text)
                 # Add original text on error
                 separated.append(text)
 
         return list(filter(lambda s: s.strip(), separated))
-    except Exception as e:
+    except Exception:
         log.exception("Error in split_transcript for transcript %r, target %r", transcript, target)
         # Return safe fallback
         if isinstance(transcript, str):
@@ -299,20 +298,20 @@ def tone_number(s):
 
         try:
             s, *_ = replace_tone_marks([cleanup(s)])
-        except Exception as e:
+        except Exception:
             log.exception("Error in replace_tone_marks for %r in tone_number", s)
             # Continue with original s
 
         try:
-            if search(f'[¹²³⁴]$', s):
+            if search('[¹²³⁴]$', s):
                 return str(' ¹²³⁴'.index(s[-1:]))
-        except (ValueError, IndexError) as e:
+        except (ValueError, IndexError):
             log.debug("Could not find tone superscript in %r", s)
 
         try:
             if search(f'[{TONE_NUMBERS}]$', s):
                 return s[-1]
-        except (IndexError, AttributeError) as e:
+        except (IndexError, AttributeError):
             log.debug("Could not extract tone number from %r", s)
 
         try:
@@ -320,12 +319,12 @@ def tone_number(s):
                 if search(r'[ˊˇˋ˙]$', s):
                     return str('  ˊˇˋ˙'.index(s[-1]))
                 return '1'
-        except (ValueError, IndexError) as e:
+        except (ValueError, IndexError):
             log.debug("Could not extract bopomofo tone from %r", s)
 
         # Default to neutral tone
         return '5'
-    except Exception as e:
+    except Exception:
         log.exception("Error in tone_number for %r", s)
         # Return neutral tone as safe default
         return '5'
@@ -354,7 +353,7 @@ def sanitize_transcript(transcript, target, grouped=False):
                 target,
             )
         ).split()
-    except Exception as e:
+    except Exception:
         log.exception("Error in sanitize_transcript for transcript %r, target %r", transcript, target)
         # Return empty list or try to return cleaned transcript
         try:

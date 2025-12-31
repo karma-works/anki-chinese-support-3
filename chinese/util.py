@@ -20,24 +20,25 @@ from re import DOTALL, sub
 from unicodedata import category
 
 from aqt import mw
+
 from .consts import CLOZE_REGEX
 
 
-def has_field(field, note):
+def has_field(field: str, note: dict) -> bool:
     for f in note:
         if str(field.lower()) == str(f.lower()):
             return True
     return False
 
 
-def has_any_field(note, fields):
+def has_any_field(note: dict, fields: list[str]) -> bool:
     for f in fields:
         if has_field(f, note):
             return True
     return False
 
 
-def all_fields_empty(note, fields):
+def all_fields_empty(note: dict, fields: list[str]) -> bool:
     for f in fields:
         if note.get(f):
             return False
@@ -49,7 +50,7 @@ def erase_fields(note, fields):
         set_all(f, note, to='')
 
 
-def get_first(fields, note):
+def get_first(fields: list[str], note: dict) -> str | None:
     for f in fields:
         for k in note:
             if str(f.lower()) == str(k.lower()):
@@ -57,7 +58,7 @@ def get_first(fields, note):
     return None
 
 
-def set_all(fields, note, to):
+def set_all(fields: list[str], note: dict, to: str) -> None:
     fields = [f.lower() for f in fields]
 
     for f in note.keys():

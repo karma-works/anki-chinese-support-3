@@ -10,6 +10,7 @@
 
 try:
     from anki.template.hint import hint
+
     from .chinese_old import *
 except (ImportError, ModuleNotFoundError):
     from .chinese_new import *

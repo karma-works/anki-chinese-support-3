@@ -31,7 +31,7 @@ from .consts import (
 from .hanzi import split_hanzi
 from .log import log
 from .sound import extract_tags
-from .transcribe import tone_number, sanitize_transcript
+from .transcribe import sanitize_transcript, tone_number
 from .util import align, is_punc, no_color
 
 
@@ -46,7 +46,7 @@ def colorize(words, target='pinyin', ruby_whole=False):
                 return COLOR_TEMPLATE.format(
                     tone=tone_number(p.group(1)), chars=p.group()
                 )
-            except Exception as e:
+            except Exception:
                 log.exception("Error calculating tone in colorize._repl for %r", p.group(1))
                 # Return default tone5 on error
                 return COLOR_TEMPLATE.format(tone='5', chars=p.group())
@@ -79,7 +79,7 @@ def colorize(words, target='pinyin', ruby_whole=False):
                                 text += sub(pattern, _repl, syllable, IGNORECASE)
                             else:
                                 text += f'<span class="tone5">{syllable}</span>'
-                        except Exception as e:
+                        except Exception:
                             log.exception("Error processing syllable %r in colorize", syllable)
                             # Fallback to tone5 for this syllable
                             text += f'<span class="tone5">{syllable}</span>'
@@ -90,13 +90,13 @@ def colorize(words, target='pinyin', ruby_whole=False):
                     return ' '.join(f'<span class="tone5">{w}</span>' for w in words)
 
                 done.append(text + sound_tags)
-            except Exception as e:
+            except Exception:
                 log.exception("Error processing word %r in colorize", word)
                 # Fallback: return word with default tone5
                 done.append(f'<span class="tone5">{word}</span>')
 
         return ' '.join(done)
-    except Exception as e:
+    except Exception:
         log.exception("Error in colorize for words %r, target %r", words, target)
         # Return safe fallback
         if isinstance(words, list):
@@ -128,13 +128,13 @@ def colorize_dict(text):
                     s += colorize_fuse(split_hanzi(hanzi, grouped=False), pinyin, True)
 
                 return s
-            except Exception as e:
+            except Exception:
                 log.exception("Error in colorize_dict._sub for %r", p.group(0))
                 # Return uncolored text on error
                 return p.group(0)
 
         return sub(r'([\%s|]+)\[(.*?)\]' % HANZI_RANGE, _sub, text)
-    except Exception as e:
+    except Exception:
         log.exception("Error in colorize_dict for text %r", text)
         # Return original text on error
         return text if isinstance(text, str) else ''
@@ -156,24 +156,24 @@ def colorize_fuse(chars: list, trans: list, ruby=False):
                     continue
                 try:
                     tone = tone_number(t)
-                except Exception as e:
+                except Exception:
                     log.exception("Error calculating tone_number for %r in colorize_fuse", t)
                     tone = '5'  # Default to neutral tone
-                
+
                 if ruby:
                     colorized += COLOR_RUBY_TEMPLATE.format(
                         tone=tone, chars=c, trans=t
                     )
                 else:
                     colorized += COLOR_TEMPLATE.format(tone=tone, chars=c)
-            except Exception as e:
+            except Exception:
                 log.exception("Error processing char %r, trans %r in colorize_fuse", c, t)
                 # Fallback: add char with default tone5
                 if c:
                     colorized += COLOR_TEMPLATE.format(tone='5', chars=c)
 
         return colorized
-    except Exception as e:
+    except Exception:
         log.exception("Error in colorize_fuse for chars %r, trans %r, ruby %r", chars, trans, ruby)
         # Return uncolored chars as fallback
         if isinstance(chars, list):

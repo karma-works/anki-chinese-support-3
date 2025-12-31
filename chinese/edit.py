@@ -19,6 +19,7 @@
 
 import anki.notes
 import aqt.editor
+
 # Note: addHook is deprecated but some hooks don't have gui_hooks replacements yet
 # TODO: Migrate to gui_hooks when replacements become available
 from anki.hooks import addHook
@@ -51,7 +52,7 @@ class EditManager:
             )
 
             return buttons + [button]
-        except Exception as e:
+        except Exception:
             log.exception("Error in setupButton hook")
             raise
 
@@ -76,7 +77,7 @@ class EditManager:
 
             config.save()
             self.updateButton(editor)
-        except Exception as e:
+        except Exception:
             log.exception("Error in onToggle")
             raise
 
@@ -87,7 +88,7 @@ class EditManager:
             # if the editor just loaded, then we need to set the toggle status of the addon button
             if old_state is aqt.editor.EditorState.INITIAL:
                 self.updateButton(editor)
-        except Exception as e:
+        except Exception:
             log.exception("Error in on_editor_state_did_change hook")
             raise
 
@@ -99,7 +100,7 @@ class EditManager:
             if editor.state is aqt.editor.EditorState.INITIAL:
                 return
             self.updateButton(editor)
-        except Exception as e:
+        except Exception:
             log.exception("Error in on_load_note hook")
             raise
 
@@ -131,7 +132,7 @@ class EditManager:
                     document.getElementById("chineseSupport").style.setProperty("--button-gradient-end", "");
                     """
                 )
-        except Exception as e:
+        except Exception:
             log.exception("Error in updateButton")
             raise
 
@@ -155,7 +156,7 @@ class EditManager:
 
             log.debug("Fields updated successfully")
             return True
-        except Exception as e:
+        except Exception:
             log.exception("Error in onFocusLost hook (field: %s, index: %d)", field or 'unknown', index)
             # Re-raise so Anki can handle it and show the error to the user
             raise
@@ -182,7 +183,7 @@ class EditManager:
                 }})();
                 """
             return js + my_js
-        except Exception as e:
+        except Exception:
             log.exception("Error in on_editor_will_load_note hook")
             raise
 

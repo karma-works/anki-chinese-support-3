@@ -20,8 +20,8 @@
 from functools import partial
 
 from aqt import mw
+from aqt.qt import QAction, QActionGroup, QKeySequence, QMenu
 from aqt.utils import openLink
-from aqt.qt import QAction, QActionGroup, QMenu, QKeySequence
 
 from .about import CSR_GITHUB_URL, showAbout
 from .fill import (
@@ -36,7 +36,6 @@ from .fill import (
     bulk_fill_usage,
 )
 from .main import config
-
 
 SPEECH_ENGINES = {
     'Baidu Translate': 'baidu|zh',

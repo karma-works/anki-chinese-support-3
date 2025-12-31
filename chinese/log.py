@@ -4,7 +4,6 @@ import sys
 import threading
 from functools import wraps
 
-
 LOGGER_NAME = "anki-chinese-support"
 LOG_FILENAME = "anki-chinese-support.log"
 
@@ -33,6 +32,12 @@ def _configure_logger() -> logging.Logger:
         logger.propagate = False
 
     return logger
+
+
+def success(message, *args, **kwargs):
+    """Log a successful operation at the INFO level."""
+    log = _configure_logger()
+    log.info(f"SUCCESS: {message}", *args, **kwargs)
 
 
 def _exception_handler(exc_type, exc_value, exc_traceback):
@@ -67,7 +72,7 @@ def log_exceptions(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except Exception as e:
+        except Exception:
             log = _configure_logger()
             log.exception(
                 "Exception in %s.%s",
@@ -84,7 +89,7 @@ def wrap_hook(hook_func):
     def wrapper(*args, **kwargs):
         try:
             return hook_func(*args, **kwargs)
-        except Exception as e:
+        except Exception:
             log = _configure_logger()
             log.exception(
                 "Exception in hook %s.%s",

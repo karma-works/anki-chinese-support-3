@@ -24,29 +24,29 @@ try:
     # Note: wrap is deprecated but no direct replacement hook exists yet for CollectionStats.todayStats
     # TODO: Replace with gui_hooks when a stats hook becomes available
     from anki.hooks import wrap
-    from aqt import gui_hooks
     from anki.stats import CollectionStats
     from anki.stdmodels import models
-    
+    from aqt import gui_hooks
+
     from .config import ConfigManager
     from .database import Dictionary
-    
+
     config = ConfigManager()
     dictionary = Dictionary()
-    
+
     from .edit import EditManager
     from .graph import todayStats
     from .gui import load_menu, unload_menu
     from .models import advanced, basic
     from .templates import chinese, ruby
-    
+
     if config['firstRun']:
         dictionary.create_indices()
         config['firstRun'] = False
 except ImportError as e:
     log.exception("Failed to import required dependencies (missing module: %s)", e.name if hasattr(e, 'name') else 'unknown')
     raise
-except Exception as e:
+except Exception:
     log.exception("Failed to import plugin dependencies")
     raise
 

@@ -142,7 +142,7 @@ def fill_silhouette(hanzi, note):
 def fill_usage(hanzi, note):
     filled = False
 
-    if not 'usage' in config['fields']:
+    if 'usage' not in config['fields']:
         return filled
 
     if not has_any_field(config['fields']['usage'], note):
@@ -184,15 +184,18 @@ def fill_transcript(hanzi, note):
                     trans = colorize(transcribed, target)
                     trans = hide(trans, no_tone(trans))
                     set_all(config['fields'][key], note, to=trans)
+                    log.debug("Filled transcript field %r for %r", key, hanzi)
                     n_filled += 1
                 else:
                     reformat_transcript(note, key, target)
-            except Exception as e:
+            except Exception:
                 log.exception("Error filling transcript field %r for %r", key, hanzi)
                 # Continue with next field
 
+        if n_filled > 0:
+            log.info("Successfully filled %d transcript fields for %r", n_filled, hanzi)
         return n_filled
-    except Exception as e:
+    except Exception:
         log.exception("Error in fill_transcript for %r", hanzi)
         return 0  # Return 0 instead of raising
 
@@ -213,7 +216,7 @@ def reformat_transcript(note, group, target):
         hidden = hide(color, no_tone(color))
 
         set_all(config['fields'][group], note, to=hidden)
-    except Exception as e:
+    except Exception:
         log.exception("Error in reformat_transcript for group %r, target %r", group, target)
         # Fail gracefully, don't raise
 
@@ -240,7 +243,7 @@ def fill_color(hanzi, note):
             hanzi_list = split_hanzi(cleanup(hanzi), grouped=False)
             colorized = colorize_fuse(hanzi_list, trans)
             set_all(config['fields']['colorHanzi'], note, to=colorized)
-        except Exception as e:
+        except Exception:
             log.exception("Error filling colorHanzi for %r", hanzi)
 
         #traditional color
@@ -251,7 +254,7 @@ def fill_color(hanzi, note):
                 tradHanzi_list = split_hanzi(cleanup(tradHanzi), grouped=False)
                 colorized = colorize_fuse(tradHanzi_list, trans)
                 set_all(config['fields']['colorTraditional'], note, to=colorized)
-        except Exception as e:
+        except Exception:
             log.exception("Error filling colorTraditional for %r", hanzi)
 
         #cantonese color
@@ -262,9 +265,9 @@ def fill_color(hanzi, note):
                 cantoTrans = sanitize_transcript(cantoField, "jyutping", grouped=False)
                 colorized = colorize_fuse(hanzi_for_canto, cantoTrans)
                 set_all(config['fields']['colorCantonese'], note, to=colorized)
-        except Exception as e:
+        except Exception:
             log.exception("Error filling colorCantonese for %r", hanzi)
-    except Exception as e:
+    except Exception:
         log.exception("Error in fill_color for %r", hanzi)
         # Fail gracefully, don't raise
 
@@ -286,7 +289,7 @@ def fill_sound(hanzi, note):
                     log.info("Error getting sound for %r: %s", hanzi, e)
                     errors += 1
         return updated, errors
-    except Exception as e:
+    except Exception:
         log.exception("Error in fill_sound for %r", hanzi)
         # Return (0, 1) to indicate failure but don't crash
         return 0, 1
@@ -349,7 +352,7 @@ def fill_ruby(hanzi, note, trans_group, ruby_group):
         hanzi = split_hanzi(cleanup(hanzi), grouped=False)
         rubified = colorize_fuse(hanzi, trans, ruby=True)
         set_all(config['fields'][ruby_group], note, to=rubified)
-    except Exception as e:
+    except Exception:
         log.exception("Error in fill_ruby for %r, trans_group %r, ruby_group %r", hanzi, trans_group, ruby_group)
         # Fail gracefully, don't raise
 
@@ -368,7 +371,7 @@ def fill_all_rubies(hanzi, note):
             ('bopomofo', 'rubyBopomofo'),
         ]:
             fill_ruby(hanzi, note, trans_group, ruby_group)
-    except Exception as e:
+    except Exception:
         log.exception("Error in fill_all_rubies for %r", hanzi)
         # Fail gracefully, don't raise
 
@@ -422,8 +425,10 @@ def update_fields(note, focus_field, fields):
                 note[f] = copy[f]
                 updated = True
 
+        if updated:
+            log.info("Successfully updated fields for %r (focus_field: %r)", hanzi, focus_field)
         return updated
-    except Exception as e:
+    except Exception:
         log.exception("Error in update_fields (focus_field: %r, hanzi: %r)", focus_field, hanzi if 'hanzi' in locals() else 'unknown')
         # Return False to indicate no update instead of raising
         return False

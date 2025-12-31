@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
 
-from os.path import dirname, join, realpath
 import re
+from os.path import dirname, join, realpath
 
 
 def get_frequency(hanzi):

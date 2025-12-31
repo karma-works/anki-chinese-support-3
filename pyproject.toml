@@ -1,0 +1,36 @@
+[project]
+name = "anki-chinese-support-3"
+version = "0.17.1"
+description = "Anki add-on for Chinese language support"
+requires-python = ">=3.9"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = [
+    "tests",
+    "chinese/lib",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "B"]
+ignore = [
+    "E501", # Line too long
+    "N802", # Function name should be lowercase
+    "N803", # Argument name should be lowercase
+    "N806", # Variable name should be lowercase
+    "N816", # Variable in global scope should not be mixedCase
+]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"

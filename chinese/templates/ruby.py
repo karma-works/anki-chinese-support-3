@@ -13,6 +13,7 @@
 # a[hello], where "hello" is the ruby annotation for the letter "a".
 
 import re
+
 from anki.hooks import addHook
 from anki.utils import strip_html
 

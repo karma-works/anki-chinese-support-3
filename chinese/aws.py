@@ -16,13 +16,13 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
 
+import hmac
 from configparser import ConfigParser
 from datetime import datetime, timezone
 from hashlib import sha256
 from os.path import expanduser, join
 from re import sub
 from urllib.parse import urlparse
-import hmac
 
 from .log import log
 

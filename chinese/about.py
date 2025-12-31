@@ -20,7 +20,6 @@ from aqt.qt import QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 
 from ._version import __version__
 
-
 CSR_GITHUB_URL = 'https://github.com/Gustaf-C/anki-chinese-support-3'
 
 

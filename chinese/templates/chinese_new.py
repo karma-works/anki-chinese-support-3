@@ -10,10 +10,12 @@
 
 import re
 from functools import reduce
+
 from anki import hooks
-from anki.utils import strip_html
 from anki.template import TemplateRenderContext
-from .ruby import ruby_top, ruby_top_text, ruby_bottom_text, no_sound
+from anki.utils import strip_html
+
+from .ruby import no_sound, ruby_bottom_text, ruby_top, ruby_top_text
 
 r = r' ?([^ >]+?)\[(.+?)\]'
 ruby_re = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'
